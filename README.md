@@ -14,9 +14,13 @@ Intial Task
 4.Integrate Client with SMACH . 
 
 
+
+
+
 You need to learn-
 Action Server
 Smach
 image_transport 
 
 
+Commit #1-Test code added,kraken_msgs(kraken_reboot_stack) must be  catkinised before running the code  
