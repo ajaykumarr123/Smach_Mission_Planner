@@ -4,7 +4,8 @@ import smach
 import actionlib
 import kraken_msgs.msg
 import tf
-# define state Foo
+import smach_ros
+# define state Depth
 class Depth(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['surge','stop1'])
@@ -40,6 +41,7 @@ class Depth(smach.State):
         pose.pose.orientation.z = 0
         pose.pose.orientation.w = 1
         #_state.listener.waitForTransform("odom", "base_link", ros::Time(0), ros::Duration(30), ros::Duration(0.01), "FAILED");
+        ## transformation
         listener.transformPose("/odom", pose, temp)
 
         _goal.pose.position.x = temp.pose.position.x 
@@ -57,7 +59,7 @@ class Depth(smach.State):
         else:
             return stop
 
-# define state Bar
+# define state Surge
 class Surge(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['stop2'])
@@ -92,6 +94,7 @@ class Surge(smach.State):
         pose.pose.orientation.z = 0
         pose.pose.orientation.w = 0
         #_state.listener.waitForTransform("odom", "base_link", ros::Time(0), ros::Duration(30), ros::Duration(0.01), "FAILED");
+        ## transformation
         listener.transformPose("/odom", pose, temp)
 
         _goal.pose.position.x = temp.pose.position.x 
@@ -115,7 +118,7 @@ def main():
 
     # Create a SMACH state machine
     sm = smach.StateMachine(outcomes=['outcome4'])
-
+    
     # Open the container
     with sm:
         # Add states to the container
@@ -126,7 +129,14 @@ def main():
                                transitions={'stop2':'outcome4'})
 
     # Execute SMACH plan
+    sis = smach_ros.IntrospectionServer('server_name',sm,'/SM_ROOT')
+    sis.start()
+    # Execute the state machine
     outcome = sm.execute()
+    # Wait for ctrl-c to stop the application
+    rospy.spin()
+    sis.stop()
+   
 
 
 if __name__ == '__main__':
